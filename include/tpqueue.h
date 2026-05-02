@@ -1,29 +1,66 @@
 #ifndef TPQUEUE_H
 #define TPQUEUE_H
 
-struct SYM {
-    char ch;
-    int prior;
-};
-
 template <typename T>
 class TPQueue {
 private:
     struct Node {
         T data;
         Node* next;
-        Node(const T& value);
+        Node(const T& value) : data(value), next(nullptr) {}
     };
-    
+
     Node* head;
 
 public:
-    TPQueue();
-    ~TPQueue();
-    
-    void push(const T& value);
-    T pop();
-    bool isEmpty() const;
+    TPQueue() : head(nullptr) {}
+
+    ~TPQueue() {
+        while (head != nullptr) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
+    }
+
+    void push(const T& value) {
+        Node* newNode = new Node(value);
+        
+        if (head == nullptr || value.prior > head->data.prior) {
+            newNode->next = head;
+            head = newNode;
+            return;
+        }
+        
+        Node* current = head;
+        while (current->next != nullptr && current->next->data.prior >= value.prior) {
+            current = current->next;
+        }
+        
+        newNode->next = current->next;
+        current->next = newNode;
+    }
+
+    T pop() {
+        if (head == nullptr) {
+            throw "Queue is empty";
+        }
+        
+        Node* temp = head;
+        T result = head->data;
+        head = head->next;
+        delete temp;
+        return result;
+    }
+
+    bool isEmpty() const {
+        return head == nullptr;
+    }
 };
 
-#endif 
+struct SYM {
+    char ch;
+    int prior;
+};
+
+#endif
